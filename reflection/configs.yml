@@ -1,0 +1,4 @@
+statistics:
+- statsMethodName: GetMostSoldBooks
+  startYear: 1984
+  endYear: 2018
