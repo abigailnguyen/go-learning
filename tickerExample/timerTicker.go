@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"math"
+	"math/rand"
 	"os"
 	"time"
 )
@@ -619,11 +622,7 @@ import (
 // }
 
 func main() {
-	var err []error
-	if len(err) == 0 {
-		fmt.Printf("length is 0")
-	}
-	tickerExample()
+	nestedTicker()
 }
 func tickerExample() {
 	firstTime := 5
@@ -633,11 +632,65 @@ func tickerExample() {
 		select {
 		case <-t.C:
 			fmt.Fprintf(os.Stdout, "time is %v\n", time.Now())
-			t.Stop()
+			t.Stop() // you need to stop before reset.
 			firstTime += 10
 			t.Reset(time.Duration(firstTime) * time.Second)
 		case <-timeout:
 			return
 		}
 	}
+}
+
+func nestedTicker() {
+	fmt.Println("Started monitor")
+	maxPollInterval := 2048.0
+	defaultTicker := time.NewTicker(1 * time.Second)
+	maxCount := 3
+	defaultInterval := 30 * time.Second
+
+M:
+	for {
+		select {
+		case <-defaultTicker.C:
+			defaultTicker.Stop()
+			if err := PerformATask(errors.New("error")); err != nil {
+				fmt.Fprintf(os.Stdout, "Some task failed to perform %v \n", err)
+				timeout := time.After(5 * time.Minute)
+				retryTicker := time.NewTicker(5 * time.Second)
+				count := 1
+			L:
+				for {
+					select {
+					case <-timeout:
+						fmt.Fprintf(os.Stdout, "timeout exceeded, exit retry")
+						return
+					case <-retryTicker.C:
+						retryTicker.Stop() // stop so that we can reset later
+						if count > maxCount {
+							fmt.Println("Cancelling. Max attempts reached.")
+							break M
+						}
+						fmt.Fprintf(os.Stdout, "Retry again. Count %d\n", count)
+						err = PerformATask(errors.New("test"))
+						// err = PerformATask(nil)
+						if err != nil {
+							pollInterval := math.Min(math.Pow(2, float64(count))+rand.Float64(), maxPollInterval)
+							retryTicker.Reset(time.Duration(pollInterval) * time.Second) // wait and retry again
+							count++
+						} else {
+							fmt.Fprintf(os.Stdout, "Resume normal interval \n")
+							defaultTicker.Reset(defaultInterval)
+							break L
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+}
+
+func PerformATask(err error) error {
+	return err
 }

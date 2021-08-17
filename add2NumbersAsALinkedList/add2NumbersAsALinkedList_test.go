@@ -1,8 +1,8 @@
 package add2NumbersAsALinkedList
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func Test2numberlist(t *testing.T) {
@@ -15,17 +15,17 @@ func Test2numberlist(t *testing.T) {
 	l2.next = l3
 	l3.value = 5
 
-	l4 := &Node { 
+	l4 := &Node{
 		2,
-		&Node { 
-			3, 
+		&Node{
+			3,
 			&Node{
 				value: 9,
 			},
 		},
 	}
 
-	result := add2LinkedList(l1, l4);
+	result := add2LinkedList(l1, l4)
 	actual := &Node{
 		3,
 		&Node{
@@ -33,7 +33,7 @@ func Test2numberlist(t *testing.T) {
 			&Node{
 				4,
 				&Node{
-					value:1,
+					value: 1,
 				},
 			},
 		},
@@ -54,17 +54,17 @@ func Test2numberlist2(t *testing.T) {
 	l1.next = l2
 	l2.value = 5
 
-	l4 := &Node { 
+	l4 := &Node{
 		4,
-		&Node { 
-			3, 
+		&Node{
+			3,
 			&Node{
 				value: 9,
 			},
 		},
 	}
 
-	result := add2LinkedList(l1, l4);
+	result := add2LinkedList(l1, l4)
 	actual := &Node{
 		0,
 		&Node{
@@ -83,15 +83,13 @@ func Test2numberlist2(t *testing.T) {
 	}
 }
 
-
-
 func compareLinkedList(l1, l2 *Node) bool {
 	return l1.value == l2.value &&
 		compareLinkedList(l1.next, l2.next)
 }
 
 func compareLinkedListIteratively(l1, l2 *Node) (result bool) {
-	for (l1 != nil && l2 != nil ) {
+	for l1 != nil && l2 != nil {
 		if result = l1.value == l2.value; !result {
 			fmt.Printf("l1: %v, l2: %v\n", l1, l2)
 			return
@@ -102,7 +100,7 @@ func compareLinkedListIteratively(l1, l2 *Node) (result bool) {
 	}
 	fmt.Printf("l1: %v, l2: %v\n", l1, l2)
 	result = l1 == l2 // nil comparison is acceptable for the same type, but not for different types
-	return 
+	return
 }
 
 func TestNil(t *testing.T) {
