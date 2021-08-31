@@ -12,8 +12,8 @@ type AuthorizationMiddleware struct {
 	allowLocal bool
 }
 
-func (aw *AuthorizationMiddleware) Middleware(h http.Handler, f http.HandleFunc) http.Handler {
-	return http.HanlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func (aw *AuthorizationMiddleware) Middleware(h http.Handler, f http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		f(w, r)
 		h.ServeHTTP(w, r)
 	})
