@@ -12,6 +12,13 @@ type AuthorizationMiddleware struct {
 	allowLocal bool
 }
 
+func (aw *AuthorizationMiddleware) Middleware(h http.Handler, f http.HandleFunc) http.Handler {
+	return http.HanlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		f(w, r)
+		h.ServeHTTP(w, r)
+	})
+}
+
 func (aw *AuthorizationMiddleware) Handler(h http.Handler) http.Handler {
 	aw.handler = h
 	return aw
@@ -27,6 +34,9 @@ func (aw *AuthorizationMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Requ
 }
 
 func (aw *AuthorizationMiddleware) authorize(r *http.Request) bool {
+	if strings.ContainsAny(r.URL.Path, "/public") {
+		return true
+	}
 	if aw.allowLocal && strings.Index(r.RemoteAddr, "127.0.0.1") == 0 || strings.Index(r.RemoteAddr, "[::1]") == 0 {
 		return true
 	}
